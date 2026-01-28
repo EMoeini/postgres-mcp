@@ -677,7 +677,7 @@ async def main():
             enable_dns_rebinding_protection="*" not in args.allowed_hosts, allowed_hosts=args.allowed_hosts
         )
         mcp.settings.transport_security = transport_security
-        logger.info(f"Allowed hosts: {str(args.allowed_hosts)}")
+        logger.info(f"Allowed hosts: {', '.join(args.allowed_hosts)}")
         await mcp.run_streamable_http_async()
 
 
