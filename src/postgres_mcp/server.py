@@ -13,6 +13,7 @@ from typing import Union
 
 import mcp.types as types
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 from pydantic import Field
 from pydantic import validate_call
@@ -596,6 +597,12 @@ async def main():
         default=8000,
         help="Port for streamable HTTP server (default: 8000)",
     )
+    parser.add_argument(
+        "--allowed-hosts",
+        type=lambda s: s.split(","),
+        default="*",
+        help="Comma-separated list of allowed hosts for streamable HTTP server (default: *)",
+    )
 
     args = parser.parse_args()
 
@@ -666,6 +673,12 @@ async def main():
     elif args.transport == "streamable-http":
         mcp.settings.host = args.streamable_http_host
         mcp.settings.port = args.streamable_http_port
+        transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection="*" not in args.allowed_hosts,
+            allowed_hosts=args.allowed_hosts
+        )
+        mcp.settings.transport_security = transport_security
+        logger.info(f"Allowed hosts: {str(args.allowed_hosts)}")
         await mcp.run_streamable_http_async()
 
 
